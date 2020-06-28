@@ -331,6 +331,7 @@ var run = function() {
                     autofeed:           {enabled: true,                    misc: true, label: 'Feed Leviathans'},
                     hunt:               {enabled: true, subTrigger: 0.98,  misc: true, label: 'Hunt'},
                     crypto:             {enabled: true, subTrigger: 10000, misc: true, label: 'Trade Blackcoin'},
+                    catDistribution:    {enabled: false, subTrigger: 5,    misc: true, label: '分配空闲猫咪'},
                     buildEmbassies:     {enabled: true, subTrigger: 0.9,   misc: true, label: 'Build Embassies (Beta)'},
                     explore:            {enabled: false,                   misc: true, label: 'Explore (Deprecated)'}
                 }
@@ -1168,6 +1169,45 @@ var run = function() {
                     storeForSummary('faith', faith.value * (1 + apocryphaBonus));
                     activity('Praised the sun!', 'ks-praise');
                     game.religion.praise();
+                }
+            }
+
+            if (optionVals.catDistribution.enabled) {
+                var kittens = game.village.getFreeKittens();
+                if (kittens > 0) {
+                    switch (optionVals.catDistribution.subTrigger) {
+                        case 0:
+                            var name = 'woodcutter';
+                            break;
+                        case 1:
+                            var name = 'farmer';
+                            break;
+                        case 2:
+                            var name = 'scholar';
+                            break;
+                        case 3:
+                            var name = 'hunter';
+                            break;
+                        case 4:
+                            var name = 'miner';
+                            break;
+                        case 5:
+                            var name = 'priest';
+                            break;
+                        case 6:
+                            var name = 'geologist';
+                            break;
+                        case 7:
+                            var name = 'engineer';
+                            break;
+                        default:
+                            var name = 'priest';
+                    }
+                    if (game.village.getJob(name).unlocked) {
+                        game.village.assignJob(game.village.getJob(name),kittens);
+                        game.villageTab.updateTab();
+                        activity('分配了 ' + kittens + ' 只小猫到 ' + name, 'ks-distribution');
+                    }
                 }
             }
         }
@@ -2801,6 +2841,7 @@ var run = function() {
 
             triggerButton.on('click', function () {
                 var value;
+                if (name == 'catDistribution'){value = window.prompt('输入一个新的触发值 ' + option.label + '。\n取值范围为 0 到 7 之间的整数，分别对应 8 种职业。（5 为牧师）', option.subTrigger);}
                 value = window.prompt('Enter a new trigger value for ' + text + '. Should be in the range of 0 to 1.', auto.trigger);
 
                 if (value !== null) {
